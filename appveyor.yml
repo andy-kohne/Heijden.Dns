@@ -66,6 +66,9 @@ build_script:
 # scripts to run after build
 #after_build:
 #  - powershell nuget\pack.ps1
+# - nuget pack AppVeyor.Tools.SecureFile\secure-file.nuspec -Version %appveyor_build_version%
+# - appveyor PushArtifact secure-file.%appveyor_build_version%.nupkg
+#http://help.appveyor.com/discussions/questions/1438-not-sure-how-to-publish-to-the-official-nuget-server
 
 # to disable automatic builds
 #build: off
@@ -83,7 +86,7 @@ build_script:
 #---------------------------------#
 
 artifacts:
-   - path: '**\*.nupkg'
+   - path: '**\Heijden.Dns.Portable.nupkg'
 
 #  - path: src\Heijden.Dns.Portable\bin\$(configuration)
 #    name: Heijden.Dns.Portable Binaries

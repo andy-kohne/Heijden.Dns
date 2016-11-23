@@ -23,7 +23,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\Heijden.Dns.Portable.dll" target="lib\netstandard1.3" />
+    <file src="src\Heijden.Dns.Portable\bin\Release\Heijden.Dns.Portable.dll" target="lib\netstandard1.3" />
   </files>
 </package>
 
