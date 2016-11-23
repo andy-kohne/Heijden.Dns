@@ -37,8 +37,7 @@ namespace Heijden.DNS
 		{
 			if (m_Position >= m_Data.Length)
 				return 0;
-			else
-				return m_Data[m_Position++];
+		    return m_Data[m_Position++];
 		}
 
 		public char ReadChar()
@@ -106,133 +105,133 @@ namespace Heijden.DNS
 
 		public byte[] ReadBytes(int intLength)
 		{
-			List<byte> list = new List<byte>();
-			for(int intI=0;intI<intLength;intI++)
-				list.Add(ReadByte());
-			return list.ToArray();
+            var result = new byte[intLength];
+            Array.Copy(m_Data, m_Position, result, 0, intLength);
+            m_Position += intLength;
+            return result;
 		}
 
-		public Record ReadRecord(Type type, int Length)
+		public Record ReadRecord(DnsEntryType type, int Length)
 		{
 			switch (type)
 			{
-				case Type.A:
+				case DnsEntryType.A:
 					return new RecordA(this);
-				case Type.NS:
+				case DnsEntryType.NS:
 					return new RecordNS(this);
-				case Type.MD:
+				case DnsEntryType.MD:
 					return new RecordMD(this);
-				case Type.MF:
+				case DnsEntryType.MF:
 					return new RecordMF(this);
-				case Type.CNAME:
+				case DnsEntryType.CNAME:
 					return new RecordCNAME(this);
-				case Type.SOA:
+				case DnsEntryType.SOA:
 					return new RecordSOA(this);
-				case Type.MB:
+				case DnsEntryType.MB:
 					return new RecordMB(this);
-				case Type.MG:
+				case DnsEntryType.MG:
 					return new RecordMG(this);
-				case Type.MR:
+				case DnsEntryType.MR:
 					return new RecordMR(this);
-				case Type.NULL:
+				case DnsEntryType.NULL:
 					return new RecordNULL(this);
-				case Type.WKS:
+				case DnsEntryType.WKS:
 					return new RecordWKS(this);
-				case Type.PTR:
+				case DnsEntryType.PTR:
 					return new RecordPTR(this);
-				case Type.HINFO:
+				case DnsEntryType.HINFO:
 					return new RecordHINFO(this);
-				case Type.MINFO:
+				case DnsEntryType.MINFO:
 					return new RecordMINFO(this);
-				case Type.MX:
+				case DnsEntryType.MX:
 					return new RecordMX(this);
-				case Type.TXT:
+				case DnsEntryType.TXT:
 					return new RecordTXT(this, Length);
-				case Type.RP:
+				case DnsEntryType.RP:
 					return new RecordRP(this);
-				case Type.AFSDB:
+				case DnsEntryType.AFSDB:
 					return new RecordAFSDB(this);
-				case Type.X25:
+				case DnsEntryType.X25:
 					return new RecordX25(this);
-				case Type.ISDN:
+				case DnsEntryType.ISDN:
 					return new RecordISDN(this);
-				case Type.RT:
+				case DnsEntryType.RT:
 					return new RecordRT(this);
-				case Type.NSAP:
+				case DnsEntryType.NSAP:
 					return new RecordNSAP(this);
-				case Type.NSAPPTR:
+				case DnsEntryType.NSAPPTR:
 					return new RecordNSAPPTR(this);
-				case Type.SIG:
+				case DnsEntryType.SIG:
 					return new RecordSIG(this);
-				case Type.KEY:
+				case DnsEntryType.KEY:
 					return new RecordKEY(this);
-				case Type.PX:
+				case DnsEntryType.PX:
 					return new RecordPX(this);
-				case Type.GPOS:
+				case DnsEntryType.GPOS:
 					return new RecordGPOS(this);
-				case Type.AAAA:
+				case DnsEntryType.AAAA:
 					return new RecordAAAA(this);
-				case Type.LOC:
+				case DnsEntryType.LOC:
 					return new RecordLOC(this);
-				case Type.NXT:
+				case DnsEntryType.NXT:
 					return new RecordNXT(this);
-				case Type.EID:
+				case DnsEntryType.EID:
 					return new RecordEID(this);
-				case Type.NIMLOC:
+				case DnsEntryType.NIMLOC:
 					return new RecordNIMLOC(this);
-				case Type.SRV:
+				case DnsEntryType.SRV:
 					return new RecordSRV(this);
-				case Type.ATMA:
+				case DnsEntryType.ATMA:
 					return new RecordATMA(this);
-				case Type.NAPTR:
+				case DnsEntryType.NAPTR:
 					return new RecordNAPTR(this);
-				case Type.KX:
+				case DnsEntryType.KX:
 					return new RecordKX(this);
-				case Type.CERT:
+				case DnsEntryType.CERT:
 					return new RecordCERT(this);
-				case Type.A6:
+				case DnsEntryType.A6:
 					return new RecordA6(this);
-				case Type.DNAME:
+				case DnsEntryType.DNAME:
 					return new RecordDNAME(this);
-				case Type.SINK:
+				case DnsEntryType.SINK:
 					return new RecordSINK(this);
-				case Type.OPT:
+				case DnsEntryType.OPT:
 					return new RecordOPT(this);
-				case Type.APL:
+				case DnsEntryType.APL:
 					return new RecordAPL(this);
-				case Type.DS:
+				case DnsEntryType.DS:
 					return new RecordDS(this);
-				case Type.SSHFP:
+				case DnsEntryType.SSHFP:
 					return new RecordSSHFP(this);
-				case Type.IPSECKEY:
+				case DnsEntryType.IPSECKEY:
 					return new RecordIPSECKEY(this);
-				case Type.RRSIG:
+				case DnsEntryType.RRSIG:
 					return new RecordRRSIG(this);
-				case Type.NSEC:
+				case DnsEntryType.NSEC:
 					return new RecordNSEC(this);
-				case Type.DNSKEY:
+				case DnsEntryType.DNSKEY:
 					return new RecordDNSKEY(this);
-				case Type.DHCID:
+				case DnsEntryType.DHCID:
 					return new RecordDHCID(this);
-				case Type.NSEC3:
+				case DnsEntryType.NSEC3:
 					return new RecordNSEC3(this);
-				case Type.NSEC3PARAM:
+				case DnsEntryType.NSEC3PARAM:
 					return new RecordNSEC3PARAM(this);
-				case Type.HIP:
+				case DnsEntryType.HIP:
 					return new RecordHIP(this);
-				case Type.SPF:
+				case DnsEntryType.SPF:
 					return new RecordSPF(this);
-				case Type.UINFO:
+				case DnsEntryType.UINFO:
 					return new RecordUINFO(this);
-				case Type.UID:
+				case DnsEntryType.UID:
 					return new RecordUID(this);
-				case Type.GID:
+				case DnsEntryType.GID:
 					return new RecordGID(this);
-				case Type.UNSPEC:
+				case DnsEntryType.UNSPEC:
 					return new RecordUNSPEC(this);
-				case Type.TKEY:
+				case DnsEntryType.TKEY:
 					return new RecordTKEY(this);
-				case Type.TSIG:
+				case DnsEntryType.TSIG:
 					return new RecordTSIG(this);
 				default:
 					return new RecordUnknown(this);

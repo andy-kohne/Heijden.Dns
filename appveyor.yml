@@ -79,8 +79,8 @@ build_script:
 #---------------------------------#
 
 artifacts:
-  - path: src\Heijden.Dns\bin\$(configuration)
-    name: Heijden.Dns
+  - path: src\Heijden.Dns.Portable\bin\$(configuration)
+    name: Heijden.Dns.Portable
 
   - path: '**\Heijden.Dns*.nupkg'
 

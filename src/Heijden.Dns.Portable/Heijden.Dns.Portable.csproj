@@ -1,17 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{26752ADE-E7B5-466E-B80F-4A95BA6D9F7D}</ProjectGuid>
+    <ProjectGuid>{20BD409F-547B-44E8-B1ED-5EBACA34EDB8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Heijden.Dns</RootNamespace>
-    <AssemblyName>Heijden.Dns</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <RootNamespace>Heijden.Dns.Portable</RootNamespace>
+    <AssemblyName>Heijden.Dns.Portable</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,12 +35,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <!-- A reference to the entire .NET Framework is automatically included -->
+    <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Header.cs" />
@@ -46,7 +46,6 @@
     <Compile Include="Records\NotUsed\RecordA6.cs" />
     <Compile Include="Records\NotUsed\RecordAPL.cs" />
     <Compile Include="Records\NotUsed\RecordATMA.cs" />
-    <Compile Include="Records\RecordCERT.cs" />
     <Compile Include="Records\NotUsed\RecordDHCID.cs" />
     <Compile Include="Records\NotUsed\RecordDNSKEY.cs" />
     <Compile Include="Records\NotUsed\RecordEID.cs" />
@@ -75,6 +74,7 @@
     <Compile Include="Records\RecordA.cs" />
     <Compile Include="Records\RecordAAAA.cs" />
     <Compile Include="Records\RecordAFSDB.cs" />
+    <Compile Include="Records\RecordCERT.cs" />
     <Compile Include="Records\RecordCNAME.cs" />
     <Compile Include="Records\RecordDNAME.cs" />
     <Compile Include="Records\RecordDS.cs" />
@@ -114,7 +114,7 @@
     <Content Include="Records\totla.txt" />
     <Content Include="Root\named_root.txt" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

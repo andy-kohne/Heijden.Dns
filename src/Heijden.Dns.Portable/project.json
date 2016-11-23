@@ -1,0 +1,11 @@
+﻿{
+  "supports": {},
+  "dependencies": {
+    "NETStandard.Library": "1.6.1",
+    "System.Net.NameResolution": "4.3.0",
+    "System.Net.NetworkInformation": "4.3.0"
+  },
+  "frameworks": {
+    "netstandard1.3": {}
+  }
+}

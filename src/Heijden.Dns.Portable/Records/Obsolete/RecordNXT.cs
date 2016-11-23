@@ -71,7 +71,7 @@ namespace Heijden.DNS
 			for (int bitNr = 1; bitNr < (BITMAP.Length * 8); bitNr++)
 			{
 				if (IsSet(bitNr))
-					sb.Append(" " + (Type)bitNr);
+					sb.Append(" " + (DnsEntryType)bitNr);
 			}
 			return string.Format("{0}{1}", NEXTDOMAINNAME, sb.ToString());
 		}

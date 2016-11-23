@@ -72,7 +72,7 @@ namespace Heijden.DNS
 		/// <summary>
 		/// Specifies type of resource record
 		/// </summary>
-		public Type Type;
+		public DnsEntryType Type;
 
 		/// <summary>
 		/// Specifies type class of resource record, mostly IN but can be CS, CH or HS 
@@ -111,7 +111,7 @@ namespace Heijden.DNS
 		{
 			TimeLived = 0;
 			NAME = rr.ReadDomainName();
-			Type = (Type)rr.ReadUInt16();
+			Type = (DnsEntryType)rr.ReadUInt16();
 			Class = (Class)rr.ReadUInt16();
 			TTL = rr.ReadUInt32();
 			RDLENGTH = rr.ReadUInt16();

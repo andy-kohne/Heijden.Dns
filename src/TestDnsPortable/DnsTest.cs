@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Heijden.Dns.Portable;
 using Heijden.DNS;
 
-namespace DnsTestConsoleApp
+namespace TestDnsPortable
 {
     public class DnsTest
     {
@@ -13,26 +15,33 @@ namespace DnsTestConsoleApp
             _resolver = new Resolver();
             _resolver.Recursion = true;
             _resolver.UseCache = true;
-            _resolver.DnsServer = "8.8.8.8"; // Google Public DNS
+            //await _resolver.SetDnsServer("8.8.8.8"); // Google Public DNS
 
             _resolver.TimeOut = 1000;
             _resolver.Retries = 3;
             _resolver.TransportType = TransportType.Tcp;
         }
 
-        public IList<string> CertRecords(string name)
+        public async Task<IList<RecordSRV>> SrvRecords(string name)
+        {
+            const QType qType = QType.SRV;
+            const QClass qClass = QClass.IN;
+
+            var response = await _resolver.Query(name, qType, qClass);
+
+            return response.RecordsSRV;
+        }
+
+        public async Task<IList<string>> CertRecords(string name)
         {
             IList<string> records = new List<string>();
             const QType qType = QType.CERT;
             const QClass qClass = QClass.IN;
 
-            Response response = _resolver.Query(name, qType, qClass);
+            var response = await _resolver.Query(name, qType, qClass);
             
-            foreach (RecordCERT record in response.RecordsCERT)
-            {
+            foreach (var record in response.RecordsCERT)
                 records.Add(record.ToString());
-                
-            }
 
             return records;
         }

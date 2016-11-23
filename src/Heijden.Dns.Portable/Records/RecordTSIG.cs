@@ -51,7 +51,7 @@ namespace Heijden.DNS
 		{
 			DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0);
 			dateTime = dateTime.AddSeconds(TIMESIGNED);
-			string printDate = dateTime.ToShortDateString() + " " + dateTime.ToShortTimeString();
+			string printDate = dateTime.ToString("d") + " " + dateTime.ToString("d");
 			return string.Format("{0} {1} {2} {3} {4}",
 				ALGORITHMNAME,
 				printDate,

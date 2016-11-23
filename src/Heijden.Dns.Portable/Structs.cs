@@ -16,7 +16,7 @@ namespace Heijden.DNS
 	 *
 	 *		TYPE		value			meaning
 	 */
-	public enum Type : ushort
+	public enum DnsEntryType : ushort
 	{
 		A = 1,				// a IPV4 host address
 		NS = 2,				// an authoritative name server
@@ -117,88 +117,88 @@ namespace Heijden.DNS
 	 */
 	public enum QType : ushort
 	{
-		A = Type.A,			// a IPV4 host address
-		NS = Type.NS,		// an authoritative name server
-		MD = Type.MD,		// a mail destination (Obsolete - use MX)
-		MF = Type.MF,		// a mail forwarder (Obsolete - use MX)
-		CNAME = Type.CNAME,	// the canonical name for an alias
-		SOA = Type.SOA,		// marks the start of a zone of authority
-		MB = Type.MB,		// a mailbox domain name (EXPERIMENTAL)
-		MG = Type.MG,		// a mail group member (EXPERIMENTAL)
-		MR = Type.MR,		// a mail rename domain name (EXPERIMENTAL)
-		NULL = Type.NULL,	// a null RR (EXPERIMENTAL)
-		WKS = Type.WKS,		// a well known service description
-		PTR = Type.PTR,		// a domain name pointer
-		HINFO = Type.HINFO,	// host information
-		MINFO = Type.MINFO,	// mailbox or mail list information
-		MX = Type.MX,		// mail exchange
-		TXT = Type.TXT,		// text strings
+		A = DnsEntryType.A,			// a IPV4 host address
+		NS = DnsEntryType.NS,		// an authoritative name server
+		MD = DnsEntryType.MD,		// a mail destination (Obsolete - use MX)
+		MF = DnsEntryType.MF,		// a mail forwarder (Obsolete - use MX)
+		CNAME = DnsEntryType.CNAME,	// the canonical name for an alias
+		SOA = DnsEntryType.SOA,		// marks the start of a zone of authority
+		MB = DnsEntryType.MB,		// a mailbox domain name (EXPERIMENTAL)
+		MG = DnsEntryType.MG,		// a mail group member (EXPERIMENTAL)
+		MR = DnsEntryType.MR,		// a mail rename domain name (EXPERIMENTAL)
+		NULL = DnsEntryType.NULL,	// a null RR (EXPERIMENTAL)
+		WKS = DnsEntryType.WKS,		// a well known service description
+		PTR = DnsEntryType.PTR,		// a domain name pointer
+		HINFO = DnsEntryType.HINFO,	// host information
+		MINFO = DnsEntryType.MINFO,	// mailbox or mail list information
+		MX = DnsEntryType.MX,		// mail exchange
+		TXT = DnsEntryType.TXT,		// text strings
 
-		RP = Type.RP,		// The Responsible Person rfc1183
-		AFSDB = Type.AFSDB,	// AFS Data Base location
-		X25 = Type.X25,		// X.25 address rfc1183
-		ISDN = Type.ISDN,	// ISDN address rfc1183
-		RT = Type.RT,		// The Route Through rfc1183
+		RP = DnsEntryType.RP,		// The Responsible Person rfc1183
+		AFSDB = DnsEntryType.AFSDB,	// AFS Data Base location
+		X25 = DnsEntryType.X25,		// X.25 address rfc1183
+		ISDN = DnsEntryType.ISDN,	// ISDN address rfc1183
+		RT = DnsEntryType.RT,		// The Route Through rfc1183
 
-		NSAP = Type.NSAP,	// Network service access point address rfc1706
-		NSAP_PTR = Type.NSAPPTR, // Obsolete, rfc1348
+		NSAP = DnsEntryType.NSAP,	// Network service access point address rfc1706
+		NSAP_PTR = DnsEntryType.NSAPPTR, // Obsolete, rfc1348
 
-		SIG = Type.SIG,		// Cryptographic public key signature rfc2931 / rfc2535
-		KEY = Type.KEY,		// Public key as used in DNSSEC rfc2535
+		SIG = DnsEntryType.SIG,		// Cryptographic public key signature rfc2931 / rfc2535
+		KEY = DnsEntryType.KEY,		// Public key as used in DNSSEC rfc2535
 
-		PX = Type.PX,		// Pointer to X.400/RFC822 mail mapping information rfc2163
+		PX = DnsEntryType.PX,		// Pointer to X.400/RFC822 mail mapping information rfc2163
 
-		GPOS = Type.GPOS,	// Geographical position rfc1712 (obsolete)
+		GPOS = DnsEntryType.GPOS,	// Geographical position rfc1712 (obsolete)
 
-		AAAA = Type.AAAA,	// a IPV6 host address
+		AAAA = DnsEntryType.AAAA,	// a IPV6 host address
 
-		LOC = Type.LOC,		// Location information rfc1876
+		LOC = DnsEntryType.LOC,		// Location information rfc1876
 
-		NXT = Type.NXT,		// Obsolete rfc2065 / rfc2535
+		NXT = DnsEntryType.NXT,		// Obsolete rfc2065 / rfc2535
 
-		EID = Type.EID,		// *** Endpoint Identifier (Patton)
-		NIMLOC = Type.NIMLOC,// *** Nimrod Locator (Patton)
+		EID = DnsEntryType.EID,		// *** Endpoint Identifier (Patton)
+		NIMLOC = DnsEntryType.NIMLOC,// *** Nimrod Locator (Patton)
 
-		SRV = Type.SRV,		// Location of services rfc2782
+		SRV = DnsEntryType.SRV,		// Location of services rfc2782
 
-		ATMA = Type.ATMA,	// *** ATM Address (Dobrowski)
+		ATMA = DnsEntryType.ATMA,	// *** ATM Address (Dobrowski)
 
-		NAPTR = Type.NAPTR,	// The Naming Authority Pointer rfc3403
+		NAPTR = DnsEntryType.NAPTR,	// The Naming Authority Pointer rfc3403
 
-		KX = Type.KX,		// Key Exchange Delegation Record rfc2230
+		KX = DnsEntryType.KX,		// Key Exchange Delegation Record rfc2230
 
-		CERT = Type.CERT,	// *** CERT RFC2538
+		CERT = DnsEntryType.CERT,	// *** CERT RFC2538
 
-		A6 = Type.A6,		// IPv6 address rfc3363
-		DNAME = Type.DNAME,	// A way to provide aliases for a whole domain, not just a single domain name as with CNAME. rfc2672
+		A6 = DnsEntryType.A6,		// IPv6 address rfc3363
+		DNAME = DnsEntryType.DNAME,	// A way to provide aliases for a whole domain, not just a single domain name as with CNAME. rfc2672
 
-		SINK = Type.SINK,	// *** SINK Eastlake
-		OPT = Type.OPT,		// *** OPT RFC2671
+		SINK = DnsEntryType.SINK,	// *** SINK Eastlake
+		OPT = DnsEntryType.OPT,		// *** OPT RFC2671
 
-		APL = Type.APL,		// *** APL [RFC3123]
+		APL = DnsEntryType.APL,		// *** APL [RFC3123]
 
-		DS = Type.DS,		// Delegation Signer rfc3658
+		DS = DnsEntryType.DS,		// Delegation Signer rfc3658
 
-		SSHFP = Type.SSHFP,	// *** SSH Key Fingerprint RFC-ietf-secsh-dns
-		IPSECKEY = Type.IPSECKEY, // rfc4025
-		RRSIG = Type.RRSIG,	// *** RRSIG RFC-ietf-dnsext-dnssec-2535
-		NSEC = Type.NSEC,	// *** NSEC RFC-ietf-dnsext-dnssec-2535
-		DNSKEY = Type.DNSKEY,// *** DNSKEY RFC-ietf-dnsext-dnssec-2535
-		DHCID = Type.DHCID,	// rfc4701
+		SSHFP = DnsEntryType.SSHFP,	// *** SSH Key Fingerprint RFC-ietf-secsh-dns
+		IPSECKEY = DnsEntryType.IPSECKEY, // rfc4025
+		RRSIG = DnsEntryType.RRSIG,	// *** RRSIG RFC-ietf-dnsext-dnssec-2535
+		NSEC = DnsEntryType.NSEC,	// *** NSEC RFC-ietf-dnsext-dnssec-2535
+		DNSKEY = DnsEntryType.DNSKEY,// *** DNSKEY RFC-ietf-dnsext-dnssec-2535
+		DHCID = DnsEntryType.DHCID,	// rfc4701
 
-		NSEC3 = Type.NSEC3,	// RFC5155
-		NSEC3PARAM = Type.NSEC3PARAM, // RFC5155
+		NSEC3 = DnsEntryType.NSEC3,	// RFC5155
+		NSEC3PARAM = DnsEntryType.NSEC3PARAM, // RFC5155
 
-		HIP = Type.HIP,		// RFC-ietf-hip-dns-09.txt
+		HIP = DnsEntryType.HIP,		// RFC-ietf-hip-dns-09.txt
 
-		SPF = Type.SPF,		// RFC4408
-		UINFO = Type.UINFO,	// *** IANA-Reserved
-		UID = Type.UID,		// *** IANA-Reserved
-		GID = Type.GID,		// *** IANA-Reserved
-		UNSPEC = Type.UNSPEC,// *** IANA-Reserved
+		SPF = DnsEntryType.SPF,		// RFC4408
+		UINFO = DnsEntryType.UINFO,	// *** IANA-Reserved
+		UID = DnsEntryType.UID,		// *** IANA-Reserved
+		GID = DnsEntryType.GID,		// *** IANA-Reserved
+		UNSPEC = DnsEntryType.UNSPEC,// *** IANA-Reserved
 
-		TKEY = Type.TKEY,	// Transaction key rfc2930
-		TSIG = Type.TSIG,	// Transaction signature rfc2845
+		TKEY = DnsEntryType.TKEY,	// Transaction key rfc2930
+		TSIG = DnsEntryType.TSIG,	// Transaction signature rfc2845
 
 		IXFR = 251,			// incremental transfer                  [RFC1995]
 		AXFR = 252,			// transfer of an entire zone            [RFC1035]
@@ -206,8 +206,8 @@ namespace Heijden.DNS
 		MAILA = 254,		// mail agent RRs (Obsolete - see MX)    [RFC1035]
 		ANY = 255,			// A request for all records             [RFC1035]
 
-		TA = Type.TA,		// DNSSEC Trust Authorities    [Weiler]  13 December 2005
-		DLV = Type.DLV		// DNSSEC Lookaside Validation [RFC4431]
+		TA = DnsEntryType.TA,		// DNSSEC Trust Authorities    [Weiler]  13 December 2005
+		DLV = DnsEntryType.DLV		// DNSSEC Lookaside Validation [RFC4431]
 	}
 	/*
 	 * 3.2.4. CLASS values
