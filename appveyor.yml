@@ -3,8 +3,12 @@
 #---------------------------------#
 
 # version format
-version: 2.0.0.{build}                 # You can use {branch} to, for example
+version: 2.0.{build}                 # You can use {branch} to, for example
 
+branches:
+  only:
+  - master
+skip_tags: true
 
 #---------------------------------#
 #    environment configuration    #
@@ -55,13 +59,13 @@ build:
 before_build:
   - nuget restore src\Heijden.Dns.sln
 
-# scripts to run after build
-after_build:
-  - powershell nuget\pack.ps1
-
-
 # to run your custom scripts instead of automatic MSBuild
 build_script:
+ - msbuild "/p:Configuration=Release" "src\Heijden.Dns.Portable\Heijden.Dns.Portable.csproj"
+
+# scripts to run after build
+#after_build:
+#  - powershell nuget\pack.ps1
 
 # to disable automatic builds
 #build: off
@@ -87,7 +91,6 @@ artifacts:
 #---------------------------------#
 #     deployment configuration    #
 #---------------------------------#
-
 
 # scripts to run before deployment
 before_deploy:
