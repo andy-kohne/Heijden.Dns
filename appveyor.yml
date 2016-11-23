@@ -83,10 +83,10 @@ build_script:
 #---------------------------------#
 
 artifacts:
-  - path: src\Heijden.Dns.Portable\bin\$(configuration)
-    name: Heijden.Dns.Portable
+   - path: '**\*.nupkg'
 
-  - path: '**\Heijden.Dns*.nupkg'
+#  - path: src\Heijden.Dns.Portable\bin\$(configuration)
+#    name: Heijden.Dns.Portable Binaries
 
 #---------------------------------#
 #     deployment configuration    #

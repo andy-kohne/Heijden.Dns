@@ -1,30 +1,30 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
-<!--
-  For more info on this file format visit http://docs.nuget.org/docs/reference/nuspec-reference.
--->
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>Heijden.Dns</id>
-    <version>$version$</version>
+    <id>Heijden.Dns.Portable</id>
+    <version>2.0.0</version>
     <owners>softlion</owners>
     <authors>Benjamin Mayrargue, Alphons van der Heijden, Geoffrey Huntley</authors>
     <title>Heijden.Dns.Portable</title>
     <description>
 	A reusable DNS resolver for .NET.
-
-	When referencing this library from a non 'project.json' app, add these nuget packages to your app too:
-	System.Net.NetworkInformation 4.1.0+
-	System.Net.Sockets 4.1.0+
 	</description>
     <language>en-US</language>
     <projectUrl>https://github.com/softlion/Heijden.Dns</projectUrl>
     <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>DNS IPv4 IPv6</tags>
+
+	<dependencies>
+      <group targetFramework=".NETStandard1.3">
+		<dependency id="System.Net.NetworkInformation" version="4.3.0" />
+		<dependency id="System.Net.Sockets" version="4.3.0" />
+      </group>
+    </dependencies>
   </metadata>
   <files>
-    <file src="..\src\Heijden.Dns.Portable\bin\Release\Heijden.Dns.Portable.dll" target="lib\netstandard13" />
-    <file src="..\src\Heijden.Dns.Portable\*.cs" target="src" />
+    <file src="bin\Release\Heijden.Dns.Portable.dll" target="lib\netstandard1.3" />
   </files>
 </package>
+
+
