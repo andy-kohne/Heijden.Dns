@@ -39,7 +39,7 @@ assembly_info:
 #---------------------------------#
 
 # build platform, i.e. x86, x64, Any CPU. This setting is optional.
-platform: Any CPU
+# platform: Any CPU
 
 # build Configuration, i.e. Debug, Release, etc.
 configuration: Release
