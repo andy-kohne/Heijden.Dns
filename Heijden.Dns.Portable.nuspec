@@ -8,6 +8,8 @@
     <title>Heijden.Dns.Portable</title>
     <description>
 	A reusable DNS resolver for .NET.
+
+	You can reference this project in your libraries, but make sure it is also referenced in the startup project too, if this startup project is not project.json based (ie: has a packages.config file).
 	</description>
     <language>en-US</language>
     <projectUrl>https://github.com/softlion/Heijden.Dns</projectUrl>

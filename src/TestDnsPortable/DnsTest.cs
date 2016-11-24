@@ -17,7 +17,7 @@ namespace TestDnsPortable
             {
                 Recursion = true,
                 UseCache = true,
-                TimeOut = 1000,
+                TimeOut = TimeSpan.FromSeconds(3),
                 Retries = 3,
                 TransportType = TransportType.Tcp,
             };

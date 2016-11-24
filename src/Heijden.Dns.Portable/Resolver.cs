@@ -59,12 +59,9 @@ namespace Heijden.Dns.Portable
         /// <summary>
         /// Gets first DNS server address or sets single DNS server to use
         /// </summary>
-        public IPAddress DnsServer => dnsServers?[0].Address;
+        public IPAddress DnsServer => dnsServers.FirstOrDefault()?.Address;
 
-        /// <summary>
-        /// Gets or sets timeout in milliseconds
-        /// </summary>
-        public int TimeOut { get; set; }
+        public TimeSpan TimeOut { get; set; }
 
         /// <summary>
         /// Gets or set recursion for doing queries
@@ -95,16 +92,17 @@ namespace Heijden.Dns.Portable
         /// <summary>
         /// Gets or sets list of DNS servers to use
         /// </summary>
-        public IPEndPoint[] DnsServers
+        public List<IPEndPoint> DnsServers
         {
             get
             {
-                return dnsServers.ToArray();
+                return dnsServers;
             }
             set
             {
                 dnsServers.Clear();
-                dnsServers.AddRange(value);
+                if(value != null)
+                    dnsServers.AddRange(value);
             }
         }
 
@@ -141,7 +139,7 @@ namespace Heijden.Dns.Portable
 
 			unique = (ushort)(new Random()).Next();
 			retries = 3;
-			TimeOut = 1;
+			TimeOut = TimeSpan.FromSeconds(3);
 			Recursion = true;
 			useCache = true;
 			TransportType = TransportType.Udp;
@@ -191,23 +189,17 @@ namespace Heijden.Dns.Portable
 
 	    public async Task<bool> SetDnsServer(string dnsServer)
 	    {
+            dnsServers.Clear();
+
             IPAddress ip;
             if (IPAddress.TryParse(dnsServer, out ip))
-            {
-                dnsServers.Clear();
                 dnsServers.Add(new IPEndPoint(ip, DefaultPort));
-                return true;
-            }
 
             var response = await Query(dnsServer, QType.A);
             if (response.RecordsA.Length > 0)
-            {
-                dnsServers.Clear();
                 dnsServers.Add(new IPEndPoint(response.RecordsA[0].Address, DefaultPort));
-                return true;
-            }
 
-	        return false;
+	        return dnsServers.Count != 0;
 	    }
 
 
@@ -289,7 +281,7 @@ namespace Heijden.Dns.Portable
 				{
 				    using (var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
 				    {
-				        socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, TimeOut * 1000);
+				        socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, TimeOut.TotalMilliseconds);
 
 				        try
 				        {
@@ -325,7 +317,7 @@ namespace Heijden.Dns.Portable
 			{
 				for (var intDnsServer = 0; intDnsServer < dnsServers.Count; intDnsServer++)
 				{
-				    using (var tcpClient = new TcpClient {ReceiveTimeout = TimeOut * 1000})
+				    using (var tcpClient = new TcpClient {ReceiveTimeout = (int)TimeOut.TotalMilliseconds, SendTimeout = (int)TimeOut.TotalMilliseconds })
 				    {
                         //tcpClient.ReceiveBufferSize = ... 8Kb by default
                         //tcpClient.SendBufferSize = ... 8Kb by default
@@ -367,7 +359,7 @@ namespace Heijden.Dns.Portable
 
                                 data = new byte[intLength];
                                 bs.Read(data, 0, intLength);
-                                Response response = new Response(dnsServers[intDnsServer], data);
+                                var response = new Response(dnsServers[intDnsServer], data);
 
                                 //Debug.WriteLine("Received "+ (intLength+2)+" bytes in "+sw.ElapsedMilliseconds +" mS");
 
@@ -404,6 +396,7 @@ namespace Heijden.Dns.Portable
                         }
                         catch (Exception e) when (e is SocketException || e is TimeoutException)
                         {
+                            return new Response { Error = e.Message };
                         }
                         finally
                         {
@@ -534,65 +527,6 @@ namespace Heijden.Dns.Portable
 			return sb.ToString();
 		}
 
-		//#region Deprecated methods in the original System.Net.DNS class
-
-		///// <summary>
-		/////		Returns the Internet Protocol (IP) addresses for the specified host.
-		///// </summary>
-		///// <param name="hostNameOrAddress">The host name or IP address to resolve.</param>
-		///// <returns>
-		/////		An array of type System.Net.IPAddress that holds the IP addresses for the
-		/////		host that is specified by the hostNameOrAddress parameter. 
-		/////</returns>
-		//public async Task<IPAddress[]> GetHostAddresses(string hostNameOrAddress)
-		//{
-		//	IPHostEntry entry = await GetHostEntry(hostNameOrAddress);
-		//	return entry.AddressList;
-		//}
-
-		///// <summary>
-		/////		Creates an System.Net.IPHostEntry instance from the specified System.Net.IPAddress.
-		///// </summary>
-		///// <param name="ip">An System.Net.IPAddress.</param>
-		///// <returns>An System.Net.IPHostEntry.</returns>
-		//public async Task<IPHostEntry> GetHostByAddress(IPAddress ip)
-		//{
-		//	return await GetHostEntry(ip);
-		//}
-
-		///// <summary>
-		/////		Creates an System.Net.IPHostEntry instance from an IP address.
-		///// </summary>
-		///// <param name="address">An IP address.</param>
-		///// <returns>An System.Net.IPHostEntry instance.</returns>
-		//public async Task<IPHostEntry> GetHostByAddress(string address)
-		//{
-		//	return await GetHostEntry(address);
-		//}
-
-		///// <summary>
-		/////		Gets the DNS information for the specified DNS host name.
-		///// </summary>
-		///// <param name="hostName">The DNS name of the host</param>
-		///// <returns>An System.Net.IPHostEntry object that contains host information for the address specified in hostName.</returns>
-		//public async Task<IPHostEntry> GetHostByName(string hostName)
-		//{
-		//	return await MakeEntry(hostName);
-		//}
-
-
-		///// <summary>
-		/////		Resolves a host name or IP address to an System.Net.IPHostEntry instance.
-		///// </summary>
-		///// <param name="hostName">A DNS-style host name or IP address.</param>
-		///// <returns></returns>
-		////[Obsolete("no problem",false)]
-		//public async Task<IPHostEntry> Resolve(string hostName)
-		//{
-		//	return await MakeEntry(hostName);
-		//}
-		//#endregion
-
 		/// <summary>
 		///		Resolves an IP address to an System.Net.IPHostEntry instance.
 		/// </summary>
@@ -624,78 +558,5 @@ namespace Heijden.Dns.Portable
 				return await GetHostEntry(iPAddress);
             return await MakeEntry(hostNameOrAddress);
 		}
-
-		//private enum RRRecordStatus
-		//{
-		//	UNKNOWN,
-		//	NAME,
-		//	TTL,
-		//	CLASS,
-		//	TYPE,
-		//	VALUE
-		//}
-
-		//public void LoadRootFile(Stream stream)
-		//{
-		//    using (var sr = new StreamReader(stream))
-		//    {
-		//        while (!sr.EndOfStream)
-		//        {
-		//            string strLine = sr.ReadLine();
-		//            if (strLine == null)
-		//                break;
-		//            int intI = strLine.IndexOf(';');
-		//            if (intI >= 0)
-		//                strLine = strLine.Substring(0, intI);
-		//            strLine = strLine.Trim();
-		//            if (strLine.Length == 0)
-		//                continue;
-		//            RRRecordStatus status = RRRecordStatus.NAME;
-		//            string Name = "";
-		//            string Ttl = "";
-		//            string Class = "";
-		//            string Type = "";
-		//            string Value = "";
-		//            string strW = "";
-		//            for (intI = 0; intI < strLine.Length; intI++)
-		//            {
-		//                char C = strLine[intI];
-
-		//                if (C <= ' ' && strW != "")
-		//                {
-		//                    switch (status)
-		//                    {
-		//                        case RRRecordStatus.NAME:
-		//                            Name = strW;
-		//                            status = RRRecordStatus.TTL;
-		//                            break;
-		//                        case RRRecordStatus.TTL:
-		//                            Ttl = strW;
-		//                            status = RRRecordStatus.CLASS;
-		//                            break;
-		//                        case RRRecordStatus.CLASS:
-		//                            Class = strW;
-		//                            status = RRRecordStatus.TYPE;
-		//                            break;
-		//                        case RRRecordStatus.TYPE:
-		//                            Type = strW;
-		//                            status = RRRecordStatus.VALUE;
-		//                            break;
-		//                        case RRRecordStatus.VALUE:
-		//                            Value = strW;
-		//                            status = RRRecordStatus.UNKNOWN;
-		//                            break;
-		//                        default:
-		//                            break;
-		//                    }
-		//                    strW = "";
-		//                }
-		//                if (C > ' ')
-		//                    strW += C;
-		//            }
-
-		//        }
-		//    }
-		//}
 	}
 }
