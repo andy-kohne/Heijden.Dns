@@ -106,3 +106,9 @@ deploy_script:
 
 # to disable deployment
 #deploy: off
+
+deploy:
+- provider: NuGet
+  api_key:
+    secure: BmdYyUUC00I8rs3Z7OuwI8mr7QLAAxP5GYa7qWBQfx0eD8oxGOhqPPZQK8KMNX4Y
+  skip_symbols: true
