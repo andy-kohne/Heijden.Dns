@@ -18,20 +18,19 @@ Important note: if the project referencing this library and/or the startup proje
 Get SRV records:
 
     var domainName = "_autoconfig._tcp.local.";
-    var resolver = new Resolver { TransportType = TransportType.Tcp };
+    var resolver = new Resolver();
     var recordsSrv = await resolver.Query(domainName, QType.SRV).RecordsSRV;
     foreach (var item in recordsSrv.OrderBy(it => it.PRIORITY).ThenBy(it => it.WEIGHT))
         Console.WriteLine($"SRV: {item.TARGET}:{item.PORT} priority:{item.PRIORITY} weight:{item.WEIGHT} ");
 
 # Note on Android
 
-There is a bug in the on Android: it does not detect the dns addresses.  
+There is a bug in the  on Android: it does not detect the dns addresses.  
 Use this code instead then set the dns server address:
 
         {...
                 var resolver = new Resolver
                 {
-                    TransportType = TransportType.Tcp,
                     DnsServers = GetDnsServersOnAndroid().ToArray()
                 };
         ...}
