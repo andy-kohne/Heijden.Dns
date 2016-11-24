@@ -6,23 +6,19 @@ A reusable DNS resolver for .NET, using netstandard 1.3
 
 # Quick start
 
-Important note: when referencing this library from a non 'project.json' app, add these nuget packages to your app too:
+Add this library to your pcl project.
 
-    System.Net.NetworkInformation v4.1.0+
-    System.Net.Sockets v4.1.0+
+Important note: if the project referencing this library and/or the startup project of your solution is not using 'project.json' (ie: it uses packages.config), then you need to add the following nuget packages too, otherwise strange errors/crashes will occur:
+
+    System.Net.NetworkInformation v4.3.0+
+    System.Net.Sockets v4.3.0+
+
+# Sample Usage
 
 Get SRV records:
 
-    var resolver = new Resolver
-    {
-        Recursion = true,
-        UseCache = true,
-        TimeOut = 1000,
-        Retries = 3,
-        TransportType = TransportType.Tcp,
-    };
-
-    var recordsSrv = await resolver.Query(name, QType.SRV).RecordsSRV;
-    
+    var domainName = "_autoconfig._tcp.local.";
+    var resolver = new Resolver { TransportType = TransportType.Tcp };
+    var recordsSrv = await resolver.Query(domainName, QType.SRV).RecordsSRV;
     foreach (var item in recordsSrv.OrderBy(it => it.PRIORITY).ThenBy(it => it.WEIGHT))
         Console.WriteLine($"SRV: {item.TARGET}:{item.PORT} priority:{item.PRIORITY} weight:{item.WEIGHT} ");
