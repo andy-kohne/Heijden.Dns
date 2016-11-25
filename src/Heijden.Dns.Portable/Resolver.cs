@@ -14,6 +14,7 @@ namespace Heijden.Dns.Portable
     public class VerboseEventArgs : EventArgs
     {
         public string Message { get; }
+
         public VerboseEventArgs(string message)
         {
             Message = message;
@@ -24,30 +25,31 @@ namespace Heijden.Dns.Portable
     /// Resolver is the main class to do DNS query lookups
     /// </summary>
     public class Resolver
-	{
-	    /// <summary>
-		/// Default DNS port
-		/// </summary>
-		public const int DefaultPort = 53;
+    {
+        /// <summary>
+        /// Default DNS port
+        /// </summary>
+        public const int DefaultPort = 53;
 
         /// <summary>
         /// OpenDNS dns servers.
         /// For information only.
         /// </summary>
         public static readonly IPEndPoint[] DefaultDnsServers =
-            {
-                new IPEndPoint(IPAddress.Parse("208.67.222.222"), DefaultPort),
-                new IPEndPoint(IPAddress.Parse("208.67.220.220"), DefaultPort)
-            };
+        {
+            new IPEndPoint(IPAddress.Parse("208.67.222.222"), DefaultPort),
+            new IPEndPoint(IPAddress.Parse("208.67.220.220"), DefaultPort)
+        };
 
         private ushort unique;
-		private bool useCache;
-	    private int retries;
+        private bool useCache;
+        private int retries;
 
-	    private readonly List<IPEndPoint> dnsServers;
-		private readonly Dictionary<string,Response> responseCache = new Dictionary<string, Response>();
+        private readonly List<IPEndPoint> dnsServers;
+        private readonly Dictionary<string, Response> responseCache = new Dictionary<string, Response>();
 
         #region public properties
+
         /// <summary>
         /// Verbose messages from internal operations
         /// </summary>
@@ -78,10 +80,7 @@ namespace Heijden.Dns.Portable
         /// </summary>
         public int Retries
         {
-            get
-            {
-                return retries;
-            }
+            get { return retries; }
             set
             {
                 if (value >= 1)
@@ -94,24 +93,18 @@ namespace Heijden.Dns.Portable
         /// </summary>
         public List<IPEndPoint> DnsServers
         {
-            get
-            {
-                return dnsServers;
-            }
+            get { return dnsServers; }
             set
             {
                 dnsServers.Clear();
-                if(value != null)
+                if (value != null)
                     dnsServers.AddRange(value);
             }
         }
 
         public bool UseCache
         {
-            get
-            {
-                return useCache;
-            }
+            get { return useCache; }
             set
             {
                 useCache = value;
@@ -119,6 +112,7 @@ namespace Heijden.Dns.Portable
                     ClearCache();
             }
         }
+
         #endregion
 
 
@@ -134,61 +128,62 @@ namespace Heijden.Dns.Portable
         /// </summary>
         /// <param name="dnsServers">Set of DNS servers</param>
         public Resolver(IPEndPoint[] dnsServers)
-		{
-			this.dnsServers = new List<IPEndPoint>(dnsServers);
+        {
+            this.dnsServers = new List<IPEndPoint>(dnsServers);
 
-			unique = (ushort)(new Random()).Next();
-			retries = 3;
-			TimeOut = TimeSpan.FromSeconds(3);
-			Recursion = true;
-			useCache = true;
-			TransportType = TransportType.Udp;
-		}
+            unique = (ushort) (new Random()).Next();
+            retries = 3;
+            TimeOut = TimeSpan.FromSeconds(3);
+            Recursion = true;
+            useCache = true;
+            TransportType = TransportType.Udp;
+        }
 
-		/// <summary>
-		/// Constructor of Resolver using DNS server specified.
-		/// </summary>
-		/// <param name="dnsServer">DNS server to use</param>
-		public Resolver(IPEndPoint dnsServer) : this(new [] { dnsServer })
-		{
-		}
+        /// <summary>
+        /// Constructor of Resolver using DNS server specified.
+        /// </summary>
+        /// <param name="dnsServer">DNS server to use</param>
+        public Resolver(IPEndPoint dnsServer) : this(new[] {dnsServer})
+        {
+        }
 
-		/// <summary>
-		/// Constructor of Resolver using DNS server and port specified.
-		/// </summary>
-		/// <param name="serverIpAddress">DNS server to use</param>
-		/// <param name="serverPortNumber">DNS port to use</param>
-		public Resolver(IPAddress serverIpAddress, int serverPortNumber) : this(new IPEndPoint(serverIpAddress,serverPortNumber))
-		{
-		}
+        /// <summary>
+        /// Constructor of Resolver using DNS server and port specified.
+        /// </summary>
+        /// <param name="serverIpAddress">DNS server to use</param>
+        /// <param name="serverPortNumber">DNS port to use</param>
+        public Resolver(IPAddress serverIpAddress, int serverPortNumber) : this(new IPEndPoint(serverIpAddress, serverPortNumber))
+        {
+        }
 
-		/// <summary>
-		/// Constructor of Resolver using DNS address and port specified.
-		/// </summary>
-		/// <param name="serverIpAddress">DNS server address to use</param>
-		/// <param name="serverPortNumber">DNS port to use</param>
-		public Resolver(string serverIpAddress, int serverPortNumber = DefaultPort) : this(IPAddress.Parse(serverIpAddress), serverPortNumber)
-		{
-		}
-		
+        /// <summary>
+        /// Constructor of Resolver using DNS address and port specified.
+        /// </summary>
+        /// <param name="serverIpAddress">DNS server address to use</param>
+        /// <param name="serverPortNumber">DNS port to use</param>
+        public Resolver(string serverIpAddress, int serverPortNumber = DefaultPort) : this(IPAddress.Parse(serverIpAddress), serverPortNumber)
+        {
+        }
+
         public class VerboseOutputEventArgs : EventArgs
-		{
-			public string Message;
-			public VerboseOutputEventArgs(string message)
-			{
-				Message = message;
-			}
-		}
+        {
+            public string Message;
 
-		private void FireVerbose(string format, params object[] args)
-		{
-		    OnVerbose?.Invoke(this, new VerboseEventArgs(string.Format(format, args)));
-		}
+            public VerboseOutputEventArgs(string message)
+            {
+                Message = message;
+            }
+        }
 
-	
+        private void FireVerbose(string format, params object[] args)
+        {
+            OnVerbose?.Invoke(this, new VerboseEventArgs(string.Format(format, args)));
+        }
 
-	    public async Task<bool> SetDnsServer(string dnsServer)
-	    {
+
+
+        public async Task<bool> SetDnsServer(string dnsServer)
+        {
             dnsServers.Clear();
 
             IPAddress ip;
@@ -199,105 +194,115 @@ namespace Heijden.Dns.Portable
             if (response.RecordsA.Length > 0)
                 dnsServers.Add(new IPEndPoint(response.RecordsA[0].Address, DefaultPort));
 
-	        return dnsServers.Count != 0;
-	    }
+            return dnsServers.Count != 0;
+        }
 
 
 
 
-		/// <summary>
-		/// Clear the resolver cache
-		/// </summary>
-		public void ClearCache()
-		{
-		    lock (responseCache)
-		    {
-		        responseCache.Clear();
-		    }
-		}
+        /// <summary>
+        /// Clear the resolver cache
+        /// </summary>
+        public void ClearCache()
+        {
+            lock (responseCache)
+            {
+                responseCache.Clear();
+            }
+        }
 
-		private Response SearchInCache(Question question)
-		{
-			if (!useCache)
-				return null;
+        private Response SearchInCache(Question question)
+        {
+            if (!useCache)
+                return null;
 
-			var strKey = question.QClass + "-" + question.QType + "-" + question.QName;
+            var strKey = question.QClass + "-" + question.QType + "-" + question.QName;
 
-			Response response = null;
+            Response response = null;
 
-			lock (responseCache)
-			{
-				if (!responseCache.ContainsKey(strKey))
-					return null;
+            lock (responseCache)
+            {
+                if (!responseCache.ContainsKey(strKey))
+                    return null;
 
-				response = responseCache[strKey];
-			}
+                response = responseCache[strKey];
+            }
 
-			var timeLived = (int)((DateTime.Now.Ticks - response.TimeStamp.Ticks) / TimeSpan.TicksPerSecond);
-			foreach (var rr in response.RecordsRR)
-			{
-				rr.TimeLived = timeLived;
-				// The TTL property calculates its actual time to live
-				if (rr.TTL == 0)
-					return null; // out of date
-			}
-			return response;
-		}
+            var timeLived = (int) ((DateTime.Now.Ticks - response.TimeStamp.Ticks) / TimeSpan.TicksPerSecond);
+            foreach (var rr in response.RecordsRR)
+            {
+                rr.TimeLived = timeLived;
+                // The TTL property calculates its actual time to live
+                if (rr.TTL == 0)
+                    return null; // out of date
+            }
+            return response;
+        }
 
-		private void AddToCache(Response response)
-		{
-			if (!useCache)
-				return;
+        private void AddToCache(Response response)
+        {
+            if (!useCache)
+                return;
 
-			// No question, no caching
-			if (response.Questions.Count == 0)
-				return;
+            // No question, no caching
+            if (response.Questions.Count == 0)
+                return;
 
-			// Only cached non-error responses
-			if (response.header.RCODE != RCode.NoError)
-				return;
+            // Only cached non-error responses
+            if (response.header.RCODE != RCode.NoError)
+                return;
 
-			var question = response.Questions[0];
+            var question = response.Questions[0];
 
-			var strKey = question.QClass + "-" + question.QType + "-" + question.QName;
+            var strKey = question.QClass + "-" + question.QType + "-" + question.QName;
 
-			lock (responseCache)
-			{
-				if (responseCache.ContainsKey(strKey))
-					responseCache.Remove(strKey);
+            lock (responseCache)
+            {
+                if (responseCache.ContainsKey(strKey))
+                    responseCache.Remove(strKey);
 
-				responseCache.Add(strKey, response);
-			}
-		}
+                responseCache.Add(strKey, response);
+            }
+        }
 
-		private Response UdpRequest(Request request)
-		{
-			// RFC1035 max. size of a UDP datagram is 512 bytes
-			var responseMessage = new byte[4096];
+        private Response UdpRequest(Request request)
+        {
+            // RFC1035 max. size of a UDP datagram is 512 bytes
+            var responseMessage = new byte[4096];
 
-			for (var intAttempts = 0; intAttempts < retries; intAttempts++)
-			{
-				for (var intDnsServer = 0; intDnsServer < dnsServers.Count; intDnsServer++)
-				{
-				    using (var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
-				    {
-				        socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, TimeOut.TotalMilliseconds);
+            for (var intAttempts = 0; intAttempts < retries; intAttempts++)
+            {
+                foreach (var dnsServer in dnsServers)
+                {
+                    using (var socket = new Socket(dnsServer.AddressFamily, SocketType.Dgram, ProtocolType.Udp))
+                    {
+                        try
+                        {
+                            //Option not supported on iOS
+                            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, TimeOut.TotalMilliseconds);
+                        }
+                        catch (Exception e)
+                        {
+                            FireVerbose($"Can not set ReceiveTimeout: {e.Message}");
+                            //Ignore
+                        }
 
-				        try
+                        try
 				        {
-				            socket.SendTo(request.Data, dnsServers[intDnsServer]);
+				            socket.SendTo(request.Data, dnsServer);
 				            var intReceived = socket.Receive(responseMessage);
 				            var data = new byte[intReceived];
 				            Array.Copy(responseMessage, data, intReceived);
-				            var response = new Response(dnsServers[intDnsServer], data);
+				            var response = new Response(dnsServer, data);
 				            AddToCache(response);
 				            return response;
 				        }
-				        catch (SocketException)
+				        catch (SocketException e)
 				        {
-				            FireVerbose(string.Format(";; Connection to nameserver {0} failed", (intDnsServer + 1)));
-				        }
-				        finally
+                            FireVerbose($"SocketException connecting to {dnsServer.Address}:{dnsServer.Port}: {e.Message}");
+                            return new Response { Error = $"SocketException {e.Message}" };
+                        }
+                        finally
 				        {
 				            unique++;
 				        }
@@ -305,7 +310,7 @@ namespace Heijden.Dns.Portable
 				}
 			}
 
-		    return new Response { Error = "Timeout Error" };
+		    return new Response { Error = "Generic Error" };
 		}
 
 		private async Task<Response> TcpRequest(Request request)
