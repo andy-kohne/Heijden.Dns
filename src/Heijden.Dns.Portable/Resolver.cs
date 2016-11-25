@@ -63,7 +63,7 @@ namespace Heijden.Dns.Portable
         /// </summary>
         public IPAddress DnsServer => dnsServers.FirstOrDefault()?.Address;
 
-        public TimeSpan TimeOut { get; set; }
+        public TimeSpan Timeout { get; set; }
 
         /// <summary>
         /// Gets or set recursion for doing queries
@@ -133,7 +133,7 @@ namespace Heijden.Dns.Portable
 
             unique = (ushort) (new Random()).Next();
             retries = 3;
-            TimeOut = TimeSpan.FromSeconds(3);
+            Timeout = TimeSpan.FromSeconds(1);
             Recursion = true;
             useCache = true;
             TransportType = TransportType.Udp;
@@ -267,6 +267,9 @@ namespace Heijden.Dns.Portable
 
         private Response UdpRequest(Request request)
         {
+            if (dnsServers.Count == 0)
+                return new Response { Error = "No dns server" };
+
             // RFC1035 max. size of a UDP datagram is 512 bytes
             var responseMessage = new byte[4096];
 
@@ -278,8 +281,7 @@ namespace Heijden.Dns.Portable
                     {
                         try
                         {
-                            //Option not supported on iOS
-                            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, TimeOut.TotalMilliseconds);
+                            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, (int)(Timeout.TotalMilliseconds+.5));
                         }
                         catch (Exception e)
                         {
@@ -299,8 +301,7 @@ namespace Heijden.Dns.Portable
 				        }
 				        catch (SocketException e)
 				        {
-                            FireVerbose($"SocketException connecting to {dnsServer.Address}:{dnsServer.Port}: {e.Message}");
-                            return new Response { Error = $"SocketException {e.Message}" };
+                            FireVerbose($"Udp SocketException connecting to {dnsServer.Address}:{dnsServer.Port}: {e.Message}");
                         }
                         finally
 				        {
@@ -310,98 +311,110 @@ namespace Heijden.Dns.Portable
 				}
 			}
 
-		    return new Response { Error = "Generic Error" };
+            return new Response { Error = "Generic Error, see verbose messages" };
 		}
 
 		private async Task<Response> TcpRequest(Request request)
 		{
-			//System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-			//sw.Start();
+            if (dnsServers.Count == 0)
+                return new Response { Error = "No dns server" };
 
-			for (var attempts = 0; attempts < retries; attempts++)
+            //System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            //sw.Start();
+
+            for (var attempts = 0; attempts < retries; attempts++)
 			{
-				for (var intDnsServer = 0; intDnsServer < dnsServers.Count; intDnsServer++)
+				foreach(var dnsServer in dnsServers)
 				{
-				    using (var tcpClient = new TcpClient {ReceiveTimeout = (int)TimeOut.TotalMilliseconds, SendTimeout = (int)TimeOut.TotalMilliseconds })
+				    using (var tcpClient = new TcpClient())
 				    {
                         //tcpClient.ReceiveBufferSize = ... 8Kb by default
                         //tcpClient.SendBufferSize = ... 8Kb by default
 
-                        try
-                        {
-                            await tcpClient.ConnectAsync(dnsServers[intDnsServer].Address, dnsServers[intDnsServer].Port);
+				        try
+				        {
+                            var connectTask = tcpClient.ConnectAsync(dnsServer.Address, dnsServer.Port);
+                            var waitTask = Task.Delay((int)(Timeout.TotalMilliseconds + .5));
+                            await Task.WhenAny(waitTask, connectTask);
+
+				            if (!connectTask.IsCompleted)
+                                throw new TimeoutException();
 
                             if (!tcpClient.Connected)
-                            {
-                                FireVerbose(string.Format(";; Connection to nameserver {0} failed", (intDnsServer + 1)));
-                                continue;
-                            }
+				            {
+				                FireVerbose($"Tcp connection to nameserver {dnsServer.Address}:{dnsServer.Port} failed");
+				                continue;
+				            }
 
-                            var bs = tcpClient.GetStream();
+				            var bs = tcpClient.GetStream();
 
-                            var data = request.Data;
-                            bs.WriteByte((byte)((data.Length >> 8) & 0xff));
-                            bs.WriteByte((byte)(data.Length & 0xff));
-                            bs.Write(data, 0, data.Length);
-                            bs.Flush();
+				            var data = request.Data;
+				            bs.WriteByte((byte) ((data.Length >> 8) & 0xff));
+				            bs.WriteByte((byte) (data.Length & 0xff));
+				            bs.Write(data, 0, data.Length);
+				            bs.Flush();
 
-                            var transferResponse = new Response();
-                            var intSoa = 0;
-                            var intMessageSize = 0;
+				            var transferResponse = new Response();
+				            var intSoa = 0;
+				            var intMessageSize = 0;
 
-                            //Debug.WriteLine("Sending "+ (request.Length+2) + " bytes in "+ sw.ElapsedMilliseconds+" mS");
+				            //Debug.WriteLine("Sending "+ (request.Length+2) + " bytes in "+ sw.ElapsedMilliseconds+" mS");
 
-                            while (true)
-                            {
-                                var intLength = bs.ReadByte() << 8 | bs.ReadByte();
-                                if (intLength <= 0)
-                                {
-                                    FireVerbose(string.Format(";; Connection to nameserver {0} failed", (intDnsServer + 1)));
-                                    throw new SocketException(); // next try
-                                }
+				            while (true)
+				            {
+				                var intLength = bs.ReadByte() << 8 | bs.ReadByte();
+				                if (intLength <= 0)
+				                {
+                                    // next try
+                                    throw new Exception($"Tcp connection to nameserver {dnsServer.Address}:{dnsServer.Port} failed"); 
+				                }
 
-                                intMessageSize += intLength;
+				                intMessageSize += intLength;
 
-                                data = new byte[intLength];
-                                bs.Read(data, 0, intLength);
-                                var response = new Response(dnsServers[intDnsServer], data);
+				                data = new byte[intLength];
+				                bs.Read(data, 0, intLength);
+				                var response = new Response(dnsServer, data);
 
-                                //Debug.WriteLine("Received "+ (intLength+2)+" bytes in "+sw.ElapsedMilliseconds +" mS");
+				                //Debug.WriteLine("Received "+ (intLength+2)+" bytes in "+sw.ElapsedMilliseconds +" mS");
 
-                                if (response.header.RCODE != RCode.NoError)
-                                    return response;
+				                if (response.header.RCODE != RCode.NoError)
+				                    return response;
 
-                                if (response.Questions[0].QType != QType.AXFR)
-                                {
-                                    AddToCache(response);
-                                    return response;
-                                }
+				                if (response.Questions[0].QType != QType.AXFR)
+				                {
+				                    AddToCache(response);
+				                    return response;
+				                }
 
-                                // Zone transfer!!
+				                // Zone transfer!!
 
-                                if (transferResponse.Questions.Count == 0)
-                                    transferResponse.Questions.AddRange(response.Questions);
-                                transferResponse.Answers.AddRange(response.Answers);
-                                transferResponse.Authorities.AddRange(response.Authorities);
-                                transferResponse.Additionals.AddRange(response.Additionals);
+				                if (transferResponse.Questions.Count == 0)
+				                    transferResponse.Questions.AddRange(response.Questions);
+				                transferResponse.Answers.AddRange(response.Answers);
+				                transferResponse.Authorities.AddRange(response.Authorities);
+				                transferResponse.Additionals.AddRange(response.Additionals);
 
-                                if (response.Answers[0].Type == DnsEntryType.SOA)
-                                    intSoa++;
+				                if (response.Answers[0].Type == DnsEntryType.SOA)
+				                    intSoa++;
 
-                                if (intSoa == 2)
-                                {
-                                    transferResponse.header.QDCOUNT = (ushort)transferResponse.Questions.Count;
-                                    transferResponse.header.ANCOUNT = (ushort)transferResponse.Answers.Count;
-                                    transferResponse.header.NSCOUNT = (ushort)transferResponse.Authorities.Count;
-                                    transferResponse.header.ARCOUNT = (ushort)transferResponse.Additionals.Count;
-                                    transferResponse.MessageSize = intMessageSize;
-                                    return transferResponse;
-                                }
-                            }
-                        }
-                        catch (Exception e) when (e is SocketException || e is TimeoutException)
+				                if (intSoa == 2)
+				                {
+				                    transferResponse.header.QDCOUNT = (ushort) transferResponse.Questions.Count;
+				                    transferResponse.header.ANCOUNT = (ushort) transferResponse.Answers.Count;
+				                    transferResponse.header.NSCOUNT = (ushort) transferResponse.Authorities.Count;
+				                    transferResponse.header.ARCOUNT = (ushort) transferResponse.Additionals.Count;
+				                    transferResponse.MessageSize = intMessageSize;
+				                    return transferResponse;
+				                }
+				            }
+				        }
+                        catch (TimeoutException)
                         {
-                            return new Response { Error = e.Message };
+                            FireVerbose($"TcpRequest to {dnsServer.Address}:{dnsServer.Port} timed out");
+                        }
+                        catch (Exception e)
+				        {
+                            FireVerbose($"TcpRequest to {dnsServer.Address}:{dnsServer.Port} failed: {e.Message}");
                         }
                         finally
                         {
@@ -410,17 +423,18 @@ namespace Heijden.Dns.Portable
                     }
                 }
             }
-            return new Response { Error = "Timeout Error" };
-		}
 
-		/// <summary>
-		/// Do Query on specified DNS servers
-		/// </summary>
-		/// <param name="name">Name to query</param>
-		/// <param name="qtype">Question type</param>
-		/// <param name="qclass">Class type</param>
-		/// <returns>Response of the query</returns>
-		public async Task<Response> Query(string name, QType qtype, QClass qclass = QClass.IN)
+            return new Response { Error = "Generic Error, see verbose messages" };
+        }
+
+        /// <summary>
+        /// Do Query on specified DNS servers
+        /// </summary>
+        /// <param name="name">Name to query</param>
+        /// <param name="qtype">Question type</param>
+        /// <param name="qclass">Class type</param>
+        /// <returns>Response of the query</returns>
+        public async Task<Response> Query(string name, QType qtype, QClass qclass = QClass.IN)
 		{
 			Question question = new Question(name, qtype, qclass);
 			Response response = SearchInCache(question);

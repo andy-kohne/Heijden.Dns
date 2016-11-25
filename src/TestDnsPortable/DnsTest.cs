@@ -13,16 +13,13 @@ namespace TestDnsPortable
 
         public DnsTest()
         {
-            resolver = new Resolver
-            {
-                Recursion = true,
-                UseCache = true,
-                TimeOut = TimeSpan.FromSeconds(3),
-                Retries = 3,
-                TransportType = TransportType.Tcp,
-            };
-
+            resolver = new Resolver();
             //await _resolver.SetDnsServer("8.8.8.8"); // Google Public DNS
+
+            resolver.OnVerbose += (sender, args) =>
+            {
+                Console.WriteLine(args.Message);
+            };
         }
 
         public async Task<IList<RecordSRV>> SrvRecords(string name)
