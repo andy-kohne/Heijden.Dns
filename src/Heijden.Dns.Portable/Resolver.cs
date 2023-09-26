@@ -76,6 +76,11 @@ namespace Heijden.Dns.Portable
         public TransportType TransportType { get; set; }
 
         /// <summary>
+        /// Enable automatic TCP retry for UDP responses with TC flag
+        /// </summary>
+        public bool RetryWithTcpWhenUdpTruncated { get; set; }
+
+        /// <summary>
         /// Gets or sets number of retries before giving up
         /// </summary>
         public int Retries
@@ -452,8 +457,15 @@ namespace Heijden.Dns.Portable
 			request.header.ID = unique;
 			request.header.RD = Recursion;
 
-			if (TransportType == TransportType.Udp)
-				return UdpRequest(request);
+            if (TransportType == TransportType.Udp)
+            {
+                var udpResponse = UdpRequest(request);
+
+                if (udpResponse.header.TC && RetryWithTcpWhenUdpTruncated)
+                    return await TcpRequest(request);
+
+                return udpResponse;
+            }
 
 			if (TransportType == TransportType.Tcp)
 				return await TcpRequest(request);
